@@ -245,6 +245,7 @@ class Store extends EventEmitter {
   changeSearch(text: string): void {
     var needle = text.toLowerCase();
     if (needle === this.searchText.toLowerCase() && !this.refreshSearch) {
+      this.select(this.roots.get(0));
       return;
     }
     if (!text || SearchUtils.trimSearchText(text).length === 0) {
@@ -268,24 +269,18 @@ class Store extends EventEmitter {
           .map(([key, val]) => key)
           .toList();
       }
-      this.searchRoots.forEach(id => {
-        if (this.hasBottom(id)) {
-          this._nodes = this._nodes.setIn([id, 'collapsed'], true);
-        }
-      });
+      const id = this.searchRoots.get(0, this.roots.get(0));
+      this.select(id);
     }
     this.searchText = text;
     this.emit('searchText');
     this.emit('searchRoots');
-    if (this.searchRoots && !this.searchRoots.contains(this.selected)) {
-      this.select(null, true);
-    } else if (!this.searchRoots) {
-      if (this.selected) {
-        this._revealDeep(this.selected);
-      } else {
-        this.select(this.roots.get(0));
-      }
+    if (this.selected) {
+      this._revealDeep(this.selected);
+    } else {
+      this.select(this.roots.get(0));
     }
+    
 
     this.highlightSearch();
     this.refreshSearch = false;
@@ -595,9 +590,6 @@ class Store extends EventEmitter {
   }
 
   _revealDeep(id: ElementID) {
-    if (this.searchRoots && this.searchRoots.contains(id)) {
-      return;
-    }
     var pid = this._parents.get(id);
     while (pid) {
       if (this._nodes.getIn([pid, 'collapsed'])) {

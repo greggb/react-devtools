@@ -182,11 +182,11 @@ var styles = {
 
 var WrappedTreeView = decorate({
   listeners(props) {
-    return ['searchRoots', 'roots'];
+    return ['roots'];
   },
   props(store, props) {
     return {
-      roots: store.searchRoots || store.roots,
+      roots:  store.roots,
       searching: !!store.searchRoots,
       searchText: store.searchText,
     };
